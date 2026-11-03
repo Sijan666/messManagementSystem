@@ -112,3 +112,64 @@ export const deleteExpense = async (req, res) => {
     });
   }
 };
+
+// Expense update ba edit korar jonno notun function
+export const updateExpense = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { category, amount, date, description, assignedTo, exemptedUsers } = req.body;
+
+    let parsedExemptedUsers = [];
+    if (exemptedUsers) {
+      if (Array.isArray(exemptedUsers)) {
+        parsedExemptedUsers = exemptedUsers;
+      } else {
+        try {
+          parsedExemptedUsers = JSON.parse(exemptedUsers);
+        } catch (e) {
+          parsedExemptedUsers = [exemptedUsers];
+        }
+      }
+    }
+
+    let updateData = {
+      category,
+      amount: Number(amount),
+      date: date ? normalizeDate(date) : undefined,
+      description: description || '',
+      assignedTo: category === 'Personal' && assignedTo ? assignedTo : null,
+      exemptedUsers: category !== 'Personal' ? parsedExemptedUsers : []
+    };
+
+    if (req.file) {
+      updateData.uploadedReceipt = `/uploads/${req.file.filename}`;
+    }
+
+    const updatedExpense = await Expense.findByIdAndUpdate(
+      id,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    )
+      .populate('createdBy', 'name email')
+      .populate('assignedTo', 'name')
+      .populate('exemptedUsers', 'name');
+
+    if (!updatedExpense) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'Expense record not found.'
+      });
+    }
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Expense updated successfully.',
+      data: { expense: updatedExpense }
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: 'error',
+      message: error.message || 'Failed to update expense.'
+    });
+  }
+};
