@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import { useAuthStore } from '../store/authStore';
-import { Receipt, Plus, Trash2, FileText, AlertCircle, CheckCircle2, User, Users, Download } from 'lucide-react';
+import { Receipt, Plus, Trash2, Edit2, FileText, AlertCircle, CheckCircle2, User, Users, Download, X } from 'lucide-react';
 
 export default function Expenses() {
   const { user } = useAuthStore();
@@ -11,6 +11,9 @@ export default function Expenses() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isDownloading, setIsDownloading] = useState(false);
+
+  // Edit State
+  const [editingId, setEditingId] = useState(null);
 
   // Form State
   const [category, setCategory] = useState('Bazaar');
@@ -49,7 +52,29 @@ export default function Expenses() {
     );
   };
 
-  const handleCreateExpense = async (e) => {
+  const handleEditClick = (item) => {
+    setEditingId(item._id);
+    setCategory(item.category);
+    setAmount(item.amount);
+    setDate(item.date ? item.date.split('T')[0] : new Date().toISOString().split('T')[0]);
+    setDescription(item.description || '');
+    setAssignedTo(item.assignedTo?._id || item.assignedTo || '');
+    setExemptedUsers(item.exemptedUsers ? item.exemptedUsers.map(u => u._id || u) : []);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setCategory('Bazaar');
+    setAmount('');
+    setDate(new Date().toISOString().split('T')[0]);
+    setDescription('');
+    setAssignedTo('');
+    setExemptedUsers([]);
+    setReceiptFile(null);
+  };
+
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
     if (!isManager) return;
     setError('');
@@ -74,22 +99,22 @@ export default function Expenses() {
         formData.append('receipt', receiptFile);
       }
 
-      await api.post('/expenses', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-
-      setSuccess('Expense logged successfully.');
+      if (editingId) {
+        await api.patch(`/expenses/${editingId}`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        setSuccess('Expense updated successfully.');
+      } else {
+        await api.post('/expenses', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        setSuccess('Expense logged successfully.');
+      }
       
-      setCategory('Bazaar');
-      setAmount('');
-      setDescription('');
-      setAssignedTo('');
-      setExemptedUsers([]);
-      setReceiptFile(null);
-      
+      handleCancelEdit();
       fetchData();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to add expense.');
+      setError(err.response?.data?.message || 'Failed to save expense.');
     }
   };
 
@@ -103,7 +128,6 @@ export default function Expenses() {
     }
   };
 
-  // Handler for Bazaar & Expense PDF Download
   const handleDownloadBazaarPDF = async () => {
     setIsDownloading(true);
     try {
@@ -136,7 +160,6 @@ export default function Expenses() {
           </p>
         </div>
 
-        {/* Download PDF Button for Manager */}
         {isManager && (
           <button
             onClick={handleDownloadBazaarPDF}
@@ -167,15 +190,25 @@ export default function Expenses() {
         </div>
       )}
 
-      {/* Expense Form for Manager */}
+      {/* Expense Form for Manager (Create / Edit) */}
       {isManager && (
         <div className="p-6 border shadow-sm bg-slate-900 border-slate-800 rounded-xl">
-          <h3 className="flex items-center gap-2 mb-4 text-base font-semibold text-white">
-            <Plus size={18} className="text-indigo-400" />
-            Record Mess Expense
-          </h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="flex items-center gap-2 text-base font-semibold text-white">
+              {editingId ? <Edit2 size={18} className="text-amber-400" /> : <Plus size={18} className="text-indigo-400" />}
+              {editingId ? 'Edit Expense Record' : 'Record Mess Expense'}
+            </h3>
+            {editingId && (
+              <button
+                onClick={handleCancelEdit}
+                className="flex items-center gap-1 text-xs text-slate-400 hover:text-white"
+              >
+                <X size={14} /> Cancel Edit
+              </button>
+            )}
+          </div>
 
-          <form onSubmit={handleCreateExpense} className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <form onSubmit={handleFormSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             <div>
               <label className="block text-xs font-medium text-slate-400 mb-1.5">Category</label>
               <select
@@ -215,7 +248,6 @@ export default function Expenses() {
               />
             </div>
 
-            {/* Dynamic Fields based on Category */}
             {category === 'Personal' && (
               <div className="p-4 border rounded-lg lg:col-span-3 border-indigo-500/30 bg-indigo-500/5">
                 <label className="block mb-2 text-sm font-medium text-indigo-300">Assign To (Who will pay this?)</label>
@@ -275,12 +307,23 @@ export default function Expenses() {
               />
             </div>
 
-            <div className="flex justify-end mt-2 lg:col-span-3">
+            <div className="flex justify-end gap-2 mt-2 lg:col-span-3">
+              {editingId && (
+                <button
+                  type="button"
+                  onClick={handleCancelEdit}
+                  className="py-2.5 px-5 bg-slate-800 hover:bg-slate-700 text-white font-medium rounded-lg text-sm transition-colors"
+                >
+                  Cancel
+                </button>
+              )}
               <button
                 type="submit"
-                className="py-2.5 px-6 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg text-sm transition-colors"
+                className={`py-2.5 px-6 font-medium rounded-lg text-sm text-white transition-colors ${
+                  editingId ? 'bg-amber-600 hover:bg-amber-500' : 'bg-indigo-600 hover:bg-indigo-500'
+                }`}
               >
-                Save Expense Record
+                {editingId ? 'Update Expense Record' : 'Save Expense Record'}
               </button>
             </div>
           </form>
@@ -306,7 +349,7 @@ export default function Expenses() {
                 <th className="px-4 py-3">Special Assignment</th>
                 <th className="px-4 py-3 text-center">Receipt</th>
                 <th className="px-4 py-3 text-right">Amount</th>
-                {isManager && <th className="px-4 py-3 text-center">Action</th>}
+                {isManager && <th className="px-4 py-3 text-center">Actions</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800">
@@ -384,13 +427,22 @@ export default function Expenses() {
                       <td className="px-4 py-3 font-semibold text-right text-slate-100">৳{item.amount?.toFixed(2)}</td>
                       {isManager && (
                         <td className="px-4 py-3 text-center">
-                          <button
-                            onClick={() => handleDeleteExpense(item._id)}
-                            className="p-1.5 text-slate-400 hover:text-red-400 transition-colors"
-                            title="Delete expense"
-                          >
-                            <Trash2 size={16} />
-                          </button>
+                          <div className="flex items-center justify-center gap-2">
+                            <button
+                              onClick={() => handleEditClick(item)}
+                              className="p-1.5 text-slate-400 hover:text-amber-400 transition-colors"
+                              title="Edit expense"
+                            >
+                              <Edit2 size={16} />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteExpense(item._id)}
+                              className="p-1.5 text-slate-400 hover:text-red-400 transition-colors"
+                              title="Delete expense"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
                         </td>
                       )}
                     </tr>
