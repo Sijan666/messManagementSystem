@@ -18,6 +18,7 @@ export default function Expenses() {
   // Form State
   const [category, setCategory] = useState('Bazaar');
   const [amount, setAmount] = useState('');
+  const [quantity, setQuantity] = useState(''); // <-- Quantity State added
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [description, setDescription] = useState('');
   const [assignedTo, setAssignedTo] = useState('');
@@ -56,6 +57,7 @@ export default function Expenses() {
     setEditingId(item._id);
     setCategory(item.category);
     setAmount(item.amount);
+    setQuantity(item.quantity || ''); // <-- Set quantity on edit
     setDate(item.date ? item.date.split('T')[0] : new Date().toISOString().split('T')[0]);
     setDescription(item.description || '');
     setAssignedTo(item.assignedTo?._id || item.assignedTo || '');
@@ -67,6 +69,7 @@ export default function Expenses() {
     setEditingId(null);
     setCategory('Bazaar');
     setAmount('');
+    setQuantity('');
     setDate(new Date().toISOString().split('T')[0]);
     setDescription('');
     setAssignedTo('');
@@ -84,6 +87,7 @@ export default function Expenses() {
       const formData = new FormData();
       formData.append('category', category);
       formData.append('amount', amount);
+      formData.append('quantity', quantity); // <-- Append quantity
       formData.append('date', date);
       formData.append('description', description);
       
@@ -238,6 +242,17 @@ export default function Expenses() {
             </div>
 
             <div>
+              <label className="block text-xs font-medium text-slate-400 mb-1.5">Quantity (Optional)</label>
+              <input
+                type="text"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                placeholder="e.g. 5 kg or 2 pcs"
+                className="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-200 text-sm focus:outline-none focus:border-indigo-500"
+              />
+            </div>
+
+            <div>
               <label className="block text-xs font-medium text-slate-400 mb-1.5">Date</label>
               <input
                 type="date"
@@ -292,7 +307,7 @@ export default function Expenses() {
                 type="text"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="e.g. WiFi bill or Bike parking"
+                placeholder="e.g. WiFi bill or Potatoes & Rice"
                 className="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-200 text-sm focus:outline-none focus:border-indigo-500"
               />
             </div>
@@ -345,7 +360,7 @@ export default function Expenses() {
               <tr>
                 <th className="px-4 py-3">Date</th>
                 <th className="px-4 py-3">Category</th>
-                <th className="px-4 py-3">Description</th>
+                <th className="px-4 py-3">Description / Qty</th>
                 <th className="px-4 py-3">Special Assignment</th>
                 <th className="px-4 py-3 text-center">Receipt</th>
                 <th className="px-4 py-3 text-right">Amount</th>
@@ -386,7 +401,10 @@ export default function Expenses() {
                           {item.category}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-xs text-slate-300">{item.description || '—'}</td>
+                      <td className="px-4 py-3 text-xs text-slate-300">
+                        <div>{item.description || '—'}</div>
+                        {item.quantity && <span className="font-medium text-indigo-400">Qty: {item.quantity}</span>}
+                      </td>
                       
                       <td className="px-4 py-3">
                         {item.category === 'Personal' && item.assignedTo ? (
