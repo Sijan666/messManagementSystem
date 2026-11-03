@@ -15,6 +15,11 @@ const expenseSchema = new Schema(
       required: [true, 'Amount is required'],
       min: [0, 'Amount must be greater than or equal to 0']
     },
+    quantity: {
+      type: String,
+      trim: true,
+      default: ''
+    },
     date: {
       type: Date,
       required: [true, 'Date is required'],
