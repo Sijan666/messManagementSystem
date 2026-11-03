@@ -3,7 +3,7 @@ import { normalizeDate } from '../utils/finance.util.js';
 
 export const createExpense = async (req, res) => {
   try {
-    const { category, amount, date, description, assignedTo, exemptedUsers } = req.body;
+    const { category, amount, date, description, quantity, assignedTo, exemptedUsers } = req.body;
 
     if (!category || amount === undefined) {
       return res.status(400).json({
@@ -34,6 +34,7 @@ export const createExpense = async (req, res) => {
     const expense = await Expense.create({
       category,
       amount: Number(amount),
+      quantity: quantity || '', // <-- Quantity field added
       date: date ? normalizeDate(date) : new Date(),
       uploadedReceipt,
       description: description || '',
@@ -113,11 +114,11 @@ export const deleteExpense = async (req, res) => {
   }
 };
 
-// Expense update ba edit korar jonno notun function
+// Expense update ba edit korar jonno function
 export const updateExpense = async (req, res) => {
   try {
     const { id } = req.params;
-    const { category, amount, date, description, assignedTo, exemptedUsers } = req.body;
+    const { category, amount, date, description, quantity, assignedTo, exemptedUsers } = req.body;
 
     let parsedExemptedUsers = [];
     if (exemptedUsers) {
@@ -135,6 +136,7 @@ export const updateExpense = async (req, res) => {
     let updateData = {
       category,
       amount: Number(amount),
+      quantity: quantity || '', // <-- Quantity update added
       date: date ? normalizeDate(date) : undefined,
       description: description || '',
       assignedTo: category === 'Personal' && assignedTo ? assignedTo : null,
