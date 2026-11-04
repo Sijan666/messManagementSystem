@@ -76,7 +76,7 @@ export default function Deposits() {
 
   const handleStatusUpdate = async (id, status) => {
     try {
-      await api.patch(`/deposits/${id}/status`, { status });
+      await api.patch(`/deposits/৳{id}/status`, { status });
       fetchDeposits();
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to update deposit status.');
@@ -84,10 +84,10 @@ export default function Deposits() {
   };
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-white tracking-tight">Deposit Management</h2>
-        <p className="text-sm text-slate-400 mt-1">
+        <h2 className="text-2xl font-bold tracking-tight text-white">Deposit Management</h2>
+        <p className="mt-1 text-sm text-slate-400">
           {isManager 
             ? 'Record and approve deposits submitted by mess members.'
             : 'Submit your mess deposit records for manager approval.'}
@@ -109,13 +109,13 @@ export default function Deposits() {
       )}
 
       {/* Deposit Form */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm">
-        <h3 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
+      <div className="p-6 border shadow-sm bg-slate-900 border-slate-800 rounded-xl">
+        <h3 className="flex items-center gap-2 mb-4 text-base font-semibold text-white">
           <Plus size={18} className="text-indigo-400" />
           Log New Deposit
         </h3>
 
-        <form onSubmit={handleCreateDeposit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <form onSubmit={handleCreateDeposit} className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           {isManager && (
             <div>
               <label className="block text-xs font-medium text-slate-400 mb-1.5">Member</label>
@@ -135,7 +135,7 @@ export default function Deposits() {
           )}
 
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1.5">Amount ($)</label>
+            <label className="block text-xs font-medium text-slate-400 mb-1.5">Amount (৳)</label>
             <input
               type="number"
               min="1"
@@ -194,25 +194,25 @@ export default function Deposits() {
       </div>
 
       {/* Deposit Ledger */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
+      <div className="overflow-hidden border shadow-sm bg-slate-900 border-slate-800 rounded-xl">
         <div className="p-5 border-b border-slate-800">
-          <h3 className="font-semibold text-white flex items-center gap-2">
+          <h3 className="flex items-center gap-2 font-semibold text-white">
             <Wallet size={18} className="text-indigo-400" />
             Deposit Records
           </h3>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-slate-950/60 text-slate-400 uppercase text-xs border-b border-slate-800">
+          <table className="w-full text-sm text-left">
+            <thead className="text-xs uppercase border-b bg-slate-950/60 text-slate-400 border-slate-800">
               <tr>
-                <th className="py-3 px-4">Date</th>
-                <th className="py-3 px-4">Member</th>
-                <th className="py-3 px-4">Method</th>
-                <th className="py-3 px-4">Note</th>
-                <th className="py-3 px-4 text-right">Amount</th>
-                <th className="py-3 px-4 text-center">Status</th>
-                {isManager && <th className="py-3 px-4 text-center">Actions</th>}
+                <th className="px-4 py-3">Date</th>
+                <th className="px-4 py-3">Member</th>
+                <th className="px-4 py-3">Method</th>
+                <th className="px-4 py-3">Note</th>
+                <th className="px-4 py-3 text-right">Amount</th>
+                <th className="px-4 py-3 text-center">Status</th>
+                {isManager && <th className="px-4 py-3 text-center">Actions</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800">
@@ -227,13 +227,13 @@ export default function Deposits() {
                   const formattedDate = new Date(item.date).toLocaleDateString();
                   return (
                     <tr key={item._id} className="hover:bg-slate-800/30">
-                      <td className="py-3 px-4 font-medium text-slate-200">{formattedDate}</td>
-                      <td className="py-3 px-4 text-slate-300">{item.userId?.name || 'Self'}</td>
-                      <td className="py-3 px-4 text-slate-400">{item.method}</td>
-                      <td className="py-3 px-4 text-slate-400 text-xs">{item.note || '—'}</td>
-                      <td className="py-3 px-4 text-right font-semibold text-slate-100">${item.amount?.toFixed(2)}</td>
-                      <td className="py-3 px-4 text-center">
-                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      <td className="px-4 py-3 font-medium text-slate-200">{formattedDate}</td>
+                      <td className="px-4 py-3 text-slate-300">{item.userId?.name || 'Self'}</td>
+                      <td className="px-4 py-3 text-slate-400">{item.method}</td>
+                      <td className="px-4 py-3 text-xs text-slate-400">{item.note || '—'}</td>
+                      <td className="px-4 py-3 font-semibold text-right text-slate-100">৳{item.amount?.toFixed(2)}</td>
+                      <td className="px-4 py-3 text-center">
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ৳{
                           item.status === 'approved'
                             ? 'bg-emerald-500/10 text-emerald-400'
                             : item.status === 'rejected'
@@ -247,18 +247,18 @@ export default function Deposits() {
                         </span>
                       </td>
                       {isManager && (
-                        <td className="py-3 px-4 text-center">
+                        <td className="px-4 py-3 text-center">
                           {item.status === 'pending' ? (
                             <div className="flex items-center justify-center gap-2">
                               <button
                                 onClick={() => handleStatusUpdate(item._id, 'approved')}
-                                className="px-2 py-1 text-xs bg-emerald-600 hover:bg-emerald-500 text-white rounded font-medium"
+                                className="px-2 py-1 text-xs font-medium text-white rounded bg-emerald-600 hover:bg-emerald-500"
                               >
                                 Approve
                               </button>
                               <button
                                 onClick={() => handleStatusUpdate(item._id, 'rejected')}
-                                className="px-2 py-1 text-xs bg-red-600/80 hover:bg-red-500 text-white rounded font-medium"
+                                className="px-2 py-1 text-xs font-medium text-white rounded bg-red-600/80 hover:bg-red-500"
                               >
                                 Reject
                               </button>
