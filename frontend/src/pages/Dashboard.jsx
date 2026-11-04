@@ -7,7 +7,7 @@ import {
   UtensilsCrossed, 
   AlertCircle,
   Users,
-  Download // Added Download icon
+  Download
 } from 'lucide-react';
 
 export default function Dashboard() {
@@ -112,7 +112,7 @@ export default function Dashboard() {
             <WalletIcon className="text-indigo-400" />
           </div>
           <p className="text-2xl font-bold text-white">
-            ${isManager ? summary?.totalDeposit?.toFixed(2) : userSummary?.totalDeposit?.toFixed(2)}
+            ৳{isManager ? summary?.totalDeposit?.toFixed(2) : userSummary?.totalDeposit?.toFixed(2)}
           </p>
           <p className="mt-1 text-xs text-slate-400">
             {isManager ? 'Combined mess deposits' : 'Your total deposits'}
@@ -125,7 +125,7 @@ export default function Dashboard() {
             <DollarSign className="text-amber-400" size={20} />
           </div>
           <p className="text-2xl font-bold text-white">
-            ${isManager ? summary?.totalCost?.toFixed(2) : userSummary?.totalCost?.toFixed(2)}
+            ৳{isManager ? summary?.totalCost?.toFixed(2) : userSummary?.totalCost?.toFixed(2)}
           </p>
           <p className="mt-1 text-xs text-slate-400">
             {isManager ? 'Shared mess expenses' : 'Your calculated cost share'}
@@ -157,7 +157,7 @@ export default function Dashboard() {
               ? 'text-white' 
               : (userSummary?.balance >= 0 ? 'text-emerald-400' : 'text-red-400')
           }`}>
-            ${isManager ? summary?.currentMealRate?.toFixed(2) : userSummary?.balance?.toFixed(2)}
+            ৳{isManager ? summary?.currentMealRate?.toFixed(2) : userSummary?.balance?.toFixed(2)}
           </p>
           <p className="mt-1 text-xs text-slate-400">
             {isManager ? 'Cost per consumed meal' : (userSummary?.balance >= 0 ? 'Credit remaining' : 'Due payment')}
@@ -167,18 +167,22 @@ export default function Dashboard() {
 
       {/* Breakdown Cards for Expenses */}
       {isManager && (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           <div className="p-4 border bg-slate-900/60 border-slate-800 rounded-xl">
             <span className="text-xs font-medium text-slate-400">Bazaar Expense</span>
-            <p className="mt-1 text-lg font-semibold text-slate-200">${summary?.totalBazaarExpense?.toFixed(2)}</p>
+            <p className="mt-1 text-lg font-semibold text-slate-200">৳{summary?.totalBazaarExpense?.toFixed(2)}</p>
           </div>
           <div className="p-4 border bg-slate-900/60 border-slate-800 rounded-xl">
             <span className="text-xs font-medium text-slate-400">Utilities Expense</span>
-            <p className="mt-1 text-lg font-semibold text-slate-200">${summary?.totalUtilityExpense?.toFixed(2)}</p>
+            <p className="mt-1 text-lg font-semibold text-slate-200">৳{summary?.totalUtilityExpense?.toFixed(2)}</p>
           </div>
           <div className="p-4 border bg-slate-900/60 border-slate-800 rounded-xl">
             <span className="text-xs font-medium text-slate-400">House Rent</span>
-            <p className="mt-1 text-lg font-semibold text-slate-200">${summary?.totalHouseRentExpense?.toFixed(2)}</p>
+            <p className="mt-1 text-lg font-semibold text-slate-200">৳{summary?.totalHouseRentExpense?.toFixed(2)}</p>
+          </div>
+          <div className="p-4 border bg-slate-900/60 border-slate-800 rounded-xl">
+            <span className="text-xs font-medium text-slate-400">Personal Expense</span>
+            <p className="mt-1 text-lg font-semibold text-slate-200">৳{summary?.totalPersonalExpense?.toFixed(2) || '0.00'}</p>
           </div>
         </div>
       )}
@@ -224,19 +228,18 @@ export default function Dashboard() {
                       <div className="text-xs text-slate-400">{item.email}</div>
                     </td>
                     <td className="px-4 py-3 font-medium text-right text-slate-200">{item.totalMeals}</td>
-                    <td className="px-4 py-3 font-medium text-right text-slate-200">${item.totalDeposit?.toFixed(2)}</td>
-                    <td className="px-4 py-3 text-right text-slate-400">${item.mealCost?.toFixed(2)}</td>
-                    {/* New Data Fields Rendered Here */}
-                    <td className="px-4 py-3 text-right text-slate-400">${item.utilityAndRentShare?.toFixed(2)}</td>
-                    <td className="px-4 py-3 text-right text-slate-400">${item.personalExtraCost?.toFixed(2)}</td>
-                    <td className="px-4 py-3 font-medium text-right text-slate-300">${item.totalCost?.toFixed(2)}</td>
+                    <td className="px-4 py-3 font-medium text-right text-slate-200">৳{item.totalDeposit?.toFixed(2)}</td>
+                    <td className="px-4 py-3 text-right text-slate-400">৳{item.mealCost?.toFixed(2)}</td>
+                    <td className="px-4 py-3 text-right text-slate-400">৳{item.utilityAndRentShare?.toFixed(2)}</td>
+                    <td className="px-4 py-3 text-right text-slate-400">৳{item.personalExtraCost?.toFixed(2)}</td>
+                    <td className="px-4 py-3 font-medium text-right text-slate-300">৳{item.totalCost?.toFixed(2)}</td>
                     <td className="px-4 py-3 text-right">
                       <span className={`inline-block font-semibold px-2.5 py-1 rounded-md text-xs ${
                         item.balance >= 0
                           ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                           : 'bg-red-500/10 text-red-400 border border-red-500/20'
                       }`}>
-                        {item.balance >= 0 ? `+$${item.balance?.toFixed(2)}` : `-$${Math.abs(item.balance)?.toFixed(2)}`}
+                        {item.balance >= 0 ? `+৳${item.balance?.toFixed(2)}` : `-৳${Math.abs(item.balance)?.toFixed(2)}`}
                       </span>
                     </td>
                   </tr>
