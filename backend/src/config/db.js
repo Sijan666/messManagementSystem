@@ -15,7 +15,6 @@ export const connectDB = async () => {
       mongoUri = 'mongodb://127.0.0.1:27017/mess_management';
     }
 
-    console.log('Connecting to MongoDB...');
     const connectionInstance = await mongoose.connect(mongoUri, {
       serverSelectionTimeoutMS: 5000,
     });
