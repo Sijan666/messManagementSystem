@@ -1,7 +1,10 @@
 import axios from 'axios';
 
 const api = axios.create({
+  // after deployment
   baseURL: import.meta.env.VITE_API_BASE_URL || 'https://messmanagementsystem-2rv5.onrender.com/api/v1',
+  // for testing
+  // baseURL: 'http://localhost:5000/api/v1',
   headers: {
     'Content-Type': 'application/json',
   },
